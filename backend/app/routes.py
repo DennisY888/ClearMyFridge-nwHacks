@@ -26,7 +26,7 @@ def create_recipe():
     )
     db.session.add(recipe)
     db.session.commit()
-    return jsonify({'id': recipe.id}), 201
+    return jsonify({'id': recipe.id})
 
 
 @api.route('/login', methods=['POST'])
@@ -38,4 +38,4 @@ def login():
     
     # Add authentication logic here
     # Return appropriate response like:
-    return jsonify({'message': 'Login successful nigga', 'user_id': user.id}), 200
+    return jsonify({'message': 'Login successful nigga', 'username': username, "password": password})
