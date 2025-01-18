@@ -32,9 +32,8 @@ def create_recipe():
 @api.route('/login', methods=['POST'])
 def login():
     # Get credentials from request
-    data = request.json
-    username = data.get('username')
-    password = data.get('password')
+    username = request.form['username']
+    password = request.form['password']
     
     # Add authentication logic here
     # Return appropriate response like:
