@@ -27,3 +27,8 @@ def create_recipe():
     db.session.add(recipe)
     db.session.commit()
     return jsonify({'id': recipe.id}), 201
+
+
+@api.route('/login', methods=['POST'])
+def login():
+    return jsonify({'id': "nigga"}), 201
