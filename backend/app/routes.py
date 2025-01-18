@@ -31,4 +31,11 @@ def create_recipe():
 
 @api.route('/login', methods=['POST'])
 def login():
-    return jsonify({'id': "nigga"}), 201
+    # Get credentials from request
+    data = request.json
+    username = data.get('username')
+    password = data.get('password')
+    
+    # Add authentication logic here
+    # Return appropriate response like:
+    return jsonify({'message': 'Login successful nigga', 'user_id': user.id}), 200
