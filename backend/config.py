@@ -1,7 +1,5 @@
 from os import environ, path
-basedir = path.abspath(path.dirname(__file__))
-from os import environ, path
-from datetime import timedelta  
+from datetime import timedelta
 
 basedir = path.abspath(path.dirname(__file__))
 
@@ -13,4 +11,4 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     JWT_SECRET_KEY = environ.get('JWT_SECRET_KEY', 'dev-jwt-key')
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
-
+    JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)  

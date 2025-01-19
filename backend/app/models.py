@@ -36,6 +36,6 @@ class UserFridge(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer, db.ForeignKey('auth.id'), nullable=False)
     ingredient_name = db.Column(db.String(100), nullable=False)
-    purchase_date = db.Column(db.String(10), nullable=False)
+    purchase_date = db.Column(db.DateTime, nullable=False)
     quantity = db.Column(db.String(50), nullable=False)
-    expiry_date = db.Column(db.String(10), nullable=False)
+    expiry_date = db.Column(db.DateTime, nullable=False)
