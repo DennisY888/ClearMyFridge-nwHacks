@@ -36,15 +36,16 @@ def register():
         return jsonify({'error': 'Username already exists'}), 409
     
     user = Auth(
-        username=request.form['username'],
-        preferred_name=request.form.get('preferred_name')
+        username=request.form['username']
     )
     user.set_password(request.form['password'])
+
+    preferences = request.form['preferences']
     
     try:
         db.session.add(user)
         db.session.commit()
-        return jsonify({'message': 'Registration successful', 'username': user.username}), 201
+        return jsonify({'message': 'Registration successful', 'username': user.username, "preferences": preferences}), 201
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': 'Registration failed', 'details': str(e)}), 500

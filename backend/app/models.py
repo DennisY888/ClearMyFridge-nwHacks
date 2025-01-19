@@ -8,7 +8,6 @@ class Auth(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String(100), nullable=False, unique=True, index=True)
     password_hash = db.Column(db.String(256), nullable=False)
-    preferred_name = db.Column(db.String(100))
     preferences = db.relationship('UserPreference', backref='user', lazy=True)
     fridge_items = db.relationship('UserFridge', backref='user', lazy=True)
 
