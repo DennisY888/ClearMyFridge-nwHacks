@@ -67,10 +67,6 @@ def login():
        # NEW CODE END
 
        return jsonify({
-           'message': 'Login successful',
-           'access_token': access_token,
-           'refresh_token': refresh_token,
-           'username': user.username,
            'preferences': preference_list,
            'ingredients': user_ingredients  # NEW CODE: Added ingredients to the response
        }), 200
@@ -113,7 +109,7 @@ def register():
         # NEW CODE END
 
         db.session.commit()
-        return jsonify({'message': 'Registration successful', 'username': user.username, "preferences": preferences_list}), 201
+        return jsonify({"preferences": str(preferences_list)[1:-1]}), 201
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': 'Registration failed', 'details': str(e)}), 500
