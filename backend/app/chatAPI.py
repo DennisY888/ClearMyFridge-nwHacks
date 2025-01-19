@@ -1,10 +1,7 @@
 from openai import OpenAI
 import json
-import os
 
-api_key_open = os.getenv("API_KEY")
-
-client = OpenAI(api_key = api_key_open)
+client = OpenAI(api_key = "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")
 
 def parseIngredients(ingredients):
     result = []
