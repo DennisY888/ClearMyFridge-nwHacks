@@ -83,34 +83,39 @@ def login():
 
 @api.route('/register', methods=['POST'])
 def register():
-   if not request.form.get('username') or not request.form.get('password'):
-       return jsonify({'error': 'Missing username or password'}), 400
-   if Auth.query.filter_by(username=request.form['username']).first():
-       return jsonify({'error': 'Username already exists'}), 409
-   user = Auth(
-       username=request.form['username']
-   )
-   user.set_password(request.form['password'])
-   preferences = request.form['preferences']
-   preferences_list = preferences.strip(',').split(',')
-   try:
-        db.session.add(user) #Adds the user to the database
-        db.session.flush() #This is important to get the user.id before commit
+    if not request.form.get('username') or not request.form.get('password'):
+        return jsonify({'error': 'Missing username or password'}), 400
+
+    if Auth.query.filter_by(username=request.form['username']).first():
+        return jsonify({'error': 'Username already exists'}), 409
+
+    user = Auth(
+        username=request.form['username']
+    )
+    user.set_password(request.form['password'])
+
+    preferences_string = request.form['preferences']
+    # Lowercase and replace spaces with underscores for each preference
+    preferences_list = [preference.lower().replace(' ', '_') for preference in preferences_string.strip(',').split(',')]
+
+    try:
+        db.session.add(user)
+        db.session.flush()
 
         # NEW CODE START
-        for preference_name in preferences_list: #Iterates through the preferences list
-            preference_object = Preference.query.filter_by(preference=preference_name).first() #Queries the Preference table for the preference object
-            if preference_object is None: #Checks if the preference exists in the database
-                db.session.rollback() #Rolls back the database session if the preference does not exist
-                return jsonify({'error': f'Preference "{preference_name}" does not exist.'}), 400 #Returns an error to the client
-            user_preference = UserPreference(user_id=user.id, preference_id=preference_object.id) #Creates a new UserPreference object with the user and preference id. changed user=user to user_id=user.id and preference_id=preference_object.id
-            db.session.add(user_preference) #Adds the UserPreference object to the database session
+        for preference_name in preferences_list:
+            preference_object = Preference.query.filter_by(preference=preference_name).first()
+            if preference_object is None:
+                db.session.rollback()
+                return jsonify({'error': f'Preference "{preference_name}" does not exist.'}), 400
+            user_preference = UserPreference(user_id=user.id, preference_id=preference_object.id)
+            db.session.add(user_preference)
         # NEW CODE END
 
-        db.session.commit() #Commits all the changes to the database
+        db.session.commit()
         return jsonify({'message': 'Registration successful', 'username': user.username, "preferences": preferences_list}), 201
-   except Exception as e:
-        db.session.rollback() #Rolls back the database session if an error occurs
+    except Exception as e:
+        db.session.rollback()
         return jsonify({'error': 'Registration failed', 'details': str(e)}), 500
 
 
