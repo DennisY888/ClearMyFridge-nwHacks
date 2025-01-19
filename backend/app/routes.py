@@ -252,7 +252,7 @@ def generate_recipe():
         if ingredient_obj:
             temp_tup = (
                 ingredient_obj.ingredient_name,
-                ingredient_obj.purchase_date,
+                ingredient_obj.purchase_date.strftime("%Y-%m-%d"),
                 ingredient_obj.quantity
             )
             final_ingredients.append(temp_tup)
