@@ -1,24 +1,29 @@
 from openai import OpenAI
 import json
+import os
 
-client = OpenAI(api_key = "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")
+FAIL_MSG = {"error": "fail"}
+recipe_key = os.environ.get('OPEN_RECIPE')
+client = OpenAI(api_key = recipe_key)
 
 def parseIngredients(ingredients):
     result = []
     for ingredientTuple in ingredients:
         result.append({"ingredient_name":ingredientTuple[0], "expiry_date":ingredientTuple[1], "quantity":ingredientTuple[2]})
-    return {"ingredients" : result}
+    return json.dumps({"ingredients" : result})
 
 
 def query(restrictions, ingredients):
+    sys_msg = "You are a award-winning chef ready to create new and exciting recipes! You will take a list of ingredients a customer gives you and produce a delicious recipe for them to make. Each ingredient has the date it's gonna expire so make sure to use the ones about to go bad! Make sure you remember you don't need to use every ingredient. Feel free to add other common ingredients that you know will go well with the dish! Also keep in mind each ingredient has a associated quantity. The day today is Jan 18, 2025 and format the recipe in a JSON object. Dietary restrictions of the customer: {}.".format(restrictions)
+
     return client.chat.completions.create(
-            model="gpt-4o-mini",
+            model="ft:gpt-4o-mini-2024-07-18:personal:my-recipe-v3:ArGz3Idy",
             messages=[
                 {
                 "role": "system",
                 "content": [
                     {
-                    "text": "You are a award-winning chef ready to create new and exciting recipes! You will take a list of ingredients a customer gives you and produce multiple delicious recipes for them to make. Each ingredient has the date it was purchased so make sure to use the ones about to go bad! Feel free to add other common ingredients that you know will go well with the dish! The day today is Jan 18, 2025 and format the recipe in a JSON object!",
+                    "text": sys_msg,
                     "type": "text"
                     }
                 ]
@@ -28,7 +33,7 @@ def query(restrictions, ingredients):
                 "content": [
                     {
                     "type": "text",
-                    "text": "{\"ingredients\":[{\"ingredient_name\":\"Bananas\",\"expiry_date\":\"2023-09-25\",\"quantity\":\"a lot\"},{\"ingredient_name\":\"Whole Milk\",\"expiry_date\":\"2023-10-02\",\"quantity\":\"some\"},{\"ingredient_name\":\"Eggs\",\"expiry_date\":\"2023-09-30\",\"quantity\":\"a little\"},{\"ingredient_name\":\"Chicken Breast\",\"expiry_date\":\"2023-10-01\",\"quantity\":\"some\"},{\"ingredient_name\":\"Spinach\",\"expiry_date\":\"2023-09-28\",\"quantity\":\"a little\"}]}"
+                    "text": ingredients
                     }
                 ]
                 }
@@ -107,25 +112,17 @@ def query(restrictions, ingredients):
             )
 
 def recipeCreate(input):
-    restrictions = " ".join(input['prefrences']) # restrictions (listof string)
-    ingredients = parseIngredients(input['ingredients']) # ingredients (listof tuple) (name, date, quantity)
-
-    print(restrictions)
-    print(ingredients)
-
-    # outputSucceed = False
-    # while not outputSucceed:
-    #     try:
-    #         output1 = json.loads(query(restrictions, ingredients).choices[0].message.content)
-    #         outputSucceed = True
-    #     except:
-    #         pass
+    restrictions = ",".join(input['preferences']) # restrictions (listof string)
+    ingredients = parseIngredients(input['ingredients']) # ingredients (listof tuple) (name, date, quantity) 
     
+    outputSucceed = False
+    try:
+        output1 = json.loads(query(restrictions, ingredients).choices[0].message.content)
+        outputSucceed = True
+    except:
+        pass
 
+    if not outputSucceed:
+        return FAIL_MSG
 
-    # with open("output.json", "w") as file:
-    #     json.dump(output1, file, indent=4)
-    # print("Wrote to output.json")  
-
-
-recipeCreate({"prefrences":["gluten_free"], "ingredients":[("banana", "2025-10-01", "a little"), ("banana", "2025-10-01", "a lot"), ("banana", "2025-10-01", "a little")]})
+    return output1
