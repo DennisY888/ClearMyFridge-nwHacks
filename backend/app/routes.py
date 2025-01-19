@@ -145,7 +145,7 @@ def add_ingredient():
         return jsonify({'error': 'Missing required fields'}), 400
 
     if request.form['quantity'] not in ['alittle', 'some', 'alot']:
-        return jsonify({'error': 'Invalid quantity value'}), 400
+        return jsonify({'error': 'Invalid quantity value'}), 401
 
     # expiry_date = datetime(2025, 12, 31, 23, 59, 59)
 
@@ -153,15 +153,16 @@ def add_ingredient():
         purchase_date = datetime.strptime(request.form['purchase_date'], '%Y-%m-%d')
         purchase_date = purchase_date.replace(hour=0, minute=0, second=0)
     except ValueError:
-        return jsonify({'error': 'Invalid date format for purchase_date. Use YYYY-MM-DD HH:MM:SS'}), 400
+        return jsonify({'error': 'Invalid date format for purchase_date. Use YYYY-MM-DD HH:MM:SS'}), 402
     
 
     expiry_date = expiryCreate(request.form['purchase_date'])
+    print("RESULT: " + expiry_date)
     try:
         expiry_date = datetime.strptime(expiry_date, '%Y-%m-%d')
         expiry_date = expiry_date.replace(hour=0, minute=0, second=0)
     except:
-        return jsonify({'error': 'Invalid ingredient'}), 400
+        return jsonify({'error': 'Invalid ingredient'}), 403
     
 
     try:

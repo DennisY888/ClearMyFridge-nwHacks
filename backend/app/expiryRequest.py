@@ -37,6 +37,8 @@ def query(input_msg):
             frequency_penalty=0,
             presence_penalty=0)
 
+
+
 def expiryCreate(input):
     input_msg = input['name']
     purchase_date = input['purchase_date']
