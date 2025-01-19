@@ -157,7 +157,6 @@ def add_ingredient():
     
 
     expiry_date = expiryCreate({"name": request.form['ingredient_name'], "purchase_date": request.form['purchase_date']})
-    print("RESULT: " + expiry_date)
     try:
         expiry_date = datetime.strptime(expiry_date, '%Y-%m-%d')
         expiry_date = expiry_date.replace(hour=0, minute=0, second=0)
