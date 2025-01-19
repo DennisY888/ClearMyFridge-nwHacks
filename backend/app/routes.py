@@ -177,7 +177,7 @@ def add_ingredient():
 
 
 
-@api.route('/delete_ingredient', methods=['DELETE'])
+@api.route('/delete_ingredient', methods=['DELETE', "POST"])
 
 def delete_ingredient():
     # current_user_id = get_jwt_identity()
