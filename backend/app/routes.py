@@ -1,3 +1,4 @@
+import string
 from flask import Blueprint, jsonify, request
 from app.models import Auth, Preference, UserPreference, UserFridge
 from app import db
@@ -45,7 +46,7 @@ def register():
     try:
         db.session.add(user)
         db.session.commit()
-        return jsonify({'message': 'Registration successful', 'username': user.username, "preferences": preferences}), 201
+        return jsonify({'message': 'Registration successful', 'username': user.username, "preferences": string(preferences)}), 201
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': 'Registration failed', 'details': str(e)}), 500
