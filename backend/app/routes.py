@@ -163,11 +163,9 @@ def add_ingredient():
         db.session.commit()
         return jsonify({
             'message': 'Ingredient added successfully',
-            'ingredient': {
-                'name': ingredient.ingredient_name,
-                'purchase_date': ingredient.purchase_date,
-                'quantity': ingredient.quantity
-            }
+            'name': ingredient.ingredient_name,
+            'purchase_date': ingredient.purchase_date,
+            'quantity': ingredient.quantity
         }), 201
     except Exception as e:
         db.session.rollback()
