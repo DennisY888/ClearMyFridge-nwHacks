@@ -178,7 +178,8 @@ def add_ingredient():
             'message': 'Ingredient added successfully',
             'name': ingredient.ingredient_name,
             'purchase_date': ingredient.purchase_date,
-            'quantity': ingredient.quantity
+            'quantity': ingredient.quantity,
+            "expiry_date": ingredient.expiry_date
         }), 201
     except Exception as e:
         db.session.rollback()
