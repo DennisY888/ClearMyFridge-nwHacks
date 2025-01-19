@@ -18,7 +18,7 @@ api = Blueprint('main', __name__)
 
 
 @api.route('/refresh', methods=['GET'])
-@jwt_required(refresh=True)
+# @jwt_required(refresh=True)
 def refresh():
    current_user_id = get_jwt_identity()
    access_token = create_access_token(identity=current_user_id)
@@ -27,7 +27,7 @@ def refresh():
 
 
 @api.route('/logout', methods=['POST'])
-@jwt_required()
+# @jwt_required()
 def logout():
    jti = get_jwt()["jti"]
    token_blocklist.add(jti)
@@ -90,8 +90,6 @@ def register():
         username=request.form['username']
     )
     user.set_password(request.form['password'])
-    current_user_id = get_jwt_identity()
-    access_token = create_access_token(identity=current_user_id)
 
     preferences_string = request.form['preferences']
     # Lowercase and replace spaces and hyphens with underscores for each preference
@@ -133,7 +131,7 @@ def register():
 
 
 @api.route('/add_ingredient', methods=['POST'])
-@jwt_required()
+# @jwt_required()
 def add_ingredient():
     current_user_id = get_jwt_identity()
 
@@ -177,7 +175,7 @@ def add_ingredient():
 
 
 @api.route('/protected', methods=['GET'])
-@jwt_required()
+# @jwt_required()
 def protected():
    current_user_id = get_jwt_identity()
    user = Auth.query.get(current_user_id)
