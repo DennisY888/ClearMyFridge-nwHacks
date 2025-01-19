@@ -17,7 +17,7 @@ api = Blueprint('main', __name__)
 
 
 
-@api.route('/refresh', methods=['POST'])
+@api.route('/refresh', methods=['GET'])
 @jwt_required(refresh=True)
 def refresh():
    current_user_id = get_jwt_identity()
@@ -90,6 +90,8 @@ def register():
         username=request.form['username']
     )
     user.set_password(request.form['password'])
+    current_user_id = get_jwt_identity()
+    access_token = create_access_token(identity=current_user_id)
 
     preferences_string = request.form['preferences']
     # Lowercase and replace spaces and hyphens with underscores for each preference
@@ -120,7 +122,8 @@ def register():
             "username": user.username,
             "preferences": str(preferences_list)[1:-1],  # Remove brackets from preference list
             "access_token": access_token,
-            "refresh_token": refresh_token
+            "refresh_token": refresh_token,
+            'access_token': access_token
         }), 201
     except Exception as e:
         db.session.rollback()
