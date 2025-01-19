@@ -95,8 +95,11 @@ def register():
     user.set_password(request.form['password'])
 
     preferences_string = request.form['preferences']
-    # Lowercase and replace spaces and hyphens with underscores for each preference
-    preferences_list = [preference.lower().replace(' ', '_').replace('-', '_') for preference in preferences_string.strip(',').split(',')]
+    if not preferences_string:
+        preferences_list = []
+    else:
+        preferences_list = [preference.lower().replace(' ', '_').replace('-', '_') 
+                        for preference in preferences_string.strip(',').split(',')]
 
     try:
         db.session.add(user)
