@@ -135,7 +135,7 @@ def register():
 # @jwt_required()
 def add_ingredient():
     # current_user_id = get_jwt_identity()
-    current_user_id = request.form.get["user_id"]
+    current_user_id = request.form["user_id"]
 
     if not all(k in request.form for k in ['ingredient_name', 'purchase_date', 'quantity']):
         return jsonify({'error': 'Missing required fields'}), 400
