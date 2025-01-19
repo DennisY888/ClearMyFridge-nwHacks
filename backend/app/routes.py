@@ -198,23 +198,22 @@ def delete_ingredient():
         return jsonify({'error': 'Missing required fields'}), 400
 
     if request.form['quantity'] not in ['alittle', 'some', 'alot']:
-        return jsonify({'error': 'Invalid quantity value'}), 400
+        return jsonify({'error': 'Invalid quantity value'}), 401
 
     try:
         purchase_date = datetime.strptime(request.form['purchase_date'], '%Y-%m-%d')
         purchase_date = purchase_date.replace(hour=0, minute=0, second=0)
     except ValueError:
-        return jsonify({'error': 'Invalid date format for purchase_date. Use YYYY-MM-DD HH:MM:SS'}), 400
+        return jsonify({'error': 'Invalid date format for purchase_date. Use YYYY-MM-DD HH:MM:SS'}), 402
 
     ingredient = UserFridge.query.filter_by(
         user_id=current_user_id,
         ingredient_name=request.form['ingredient_name'],
-        purchase_date=purchase_date,
         quantity=request.form['quantity']
     ).first()
 
     if not ingredient:
-        return jsonify({'error': 'Ingredient not found for this user'}), 400
+        return jsonify({'error': 'Ingredient not found for this user'}), 403
 
     try:
         db.session.delete(ingredient)
