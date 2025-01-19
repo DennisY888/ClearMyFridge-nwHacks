@@ -51,7 +51,7 @@ def login():
        user_preferences = user.preferences
 
        # Create a list to store the preference names as strings
-       preference_list = [preference.preference for preference in user_preferences]
+       preference_list = [pref.preference.preference for pref in user_preferences]
 
        # Fetch user ingredients using the relationship defined in your models
        user_ingredients = [
