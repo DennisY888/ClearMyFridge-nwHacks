@@ -21,6 +21,7 @@ def create_app():
     app.register_blueprint(api)
 
     with app.app_context():
+        db.create_all()  # Add this line
         if not Preference.query.first():
             preferences = [
                 'vegetarian', 'halal', 'kosher', 'gluten_free', 'lactose_free',
