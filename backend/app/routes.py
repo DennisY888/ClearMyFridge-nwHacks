@@ -1,5 +1,6 @@
 import string
 from flask import Blueprint, jsonify, request
+from datetime import datetime
 from app.models import Auth, Preference, UserPreference, UserFridge
 from app import db
 from app.extensions import db, jwt, token_blocklist
@@ -144,10 +145,15 @@ def add_ingredient():
     expiry_date = "foo"
 
     try:
+        purchase_date = datetime.strptime(request.form['purchase_date'], '%Y-%m-%d %H:%M:%S')  # Or your date format
+    except ValueError:
+        return jsonify({'error': 'Invalid date format for purchase_date. Use YYYY-MM-DD HH:MM:SS'}), 400
+
+    try:
         ingredient = UserFridge(
             user_id=current_user_id,
             ingredient_name=request.form['ingredient_name'],
-            purchase_date=request.form['purchase_date'],
+            purchase_date=purchase_date,
             quantity=request.form['quantity'],
             expiry_date=expiry_date
         )
