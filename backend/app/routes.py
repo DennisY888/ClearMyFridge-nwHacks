@@ -67,6 +67,8 @@ def login():
        # NEW CODE END
 
        return jsonify({
+           'access_token': access_token,  # Include access token
+           'refresh_token': refresh_token,  # Include refresh token
            'preferences': preference_list,
            'ingredients': user_ingredients  # NEW CODE: Added ingredients to the response
        }), 200
@@ -109,7 +111,18 @@ def register():
         # NEW CODE END
 
         db.session.commit()
-        return jsonify({"preferences": str(preferences_list)[1:-1]}), 201
+
+        # Generate access and refresh tokens
+        access_token = create_access_token(identity=user.id)
+        refresh_token = create_refresh_token(identity=user.id)
+
+        return jsonify({
+            "message": "Registration successful",
+            "username": user.username,
+            "preferences": str(preferences_list)[1:-1],  # Remove brackets from preference list
+            "access_token": access_token,
+            "refresh_token": refresh_token
+        }), 201
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': 'Registration failed', 'details': str(e)}), 500
