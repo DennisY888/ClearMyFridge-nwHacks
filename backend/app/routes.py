@@ -3,6 +3,7 @@ from flask import Blueprint, jsonify, request
 from app.models import Auth, Preference, UserPreference, UserFridge
 from app import db
 from app.extensions import db, jwt, token_blocklist
+from .models import Auth, Preference, UserPreference
 from flask_jwt_extended import (
    create_access_token,
    create_refresh_token, 
@@ -39,17 +40,44 @@ def logout():
 def login():
    if not request.form.get('username') or not request.form.get('password'):
        return jsonify({'error': 'Missing credentials'}), 400
+
    user = Auth.query.filter_by(username=request.form['username']).first()
+
    if user and user.check_password(request.form['password']):
        access_token = create_access_token(identity=user.id)
        refresh_token = create_refresh_token(identity=user.id)
+
+       # NEW CODE START
+       # Fetch user preferences using the relationship defined in your models
+       user_preferences = user.preferences
+
+       # Create a list to store the preference names as strings
+       preference_list = [preference.preference for preference in user_preferences]
+
+       # Fetch user ingredients using the relationship defined in your models
+       user_ingredients = [
+           {
+               "ingredient_name": ingredient.ingredient_name,
+               "purchase_date": ingredient.purchase_date.strftime("%Y-%m-%d %H:%M:%S"),  # Format datetime for JSON
+               "quantity": ingredient.quantity,
+               "expiry_date": ingredient.expiry_date.strftime("%Y-%m-%d %H:%M:%S"),
+           }
+           for ingredient in user.fridge_items
+       ]
+       # NEW CODE END
+
        return jsonify({
            'message': 'Login successful',
            'access_token': access_token,
            'refresh_token': refresh_token,
-           'username': user.username
+           'username': user.username,
+           'preferences': preference_list,
+           'ingredients': user_ingredients  # NEW CODE: Added ingredients to the response
        }), 200
+
    return jsonify({'error': 'Invalid credentials'}), 401
+
+
 
 
 
@@ -64,13 +92,66 @@ def register():
    )
    user.set_password(request.form['password'])
    preferences = request.form['preferences']
+   preferences_list = preferences.strip(',').split(',')
    try:
-       db.session.add(user)
-       db.session.commit()
-       return jsonify({'message': 'Registration successful', 'username': user.username, "preferences": str(preferences)}), 201
+        db.session.add(user) #Adds the user to the database
+        db.session.flush() #This is important to get the user.id before commit
+
+        # NEW CODE START
+        for preference_name in preferences_list: #Iterates through the preferences list
+            preference_object = Preference.query.filter_by(preference=preference_name).first() #Queries the Preference table for the preference object
+            if preference_object is None: #Checks if the preference exists in the database
+                db.session.rollback() #Rolls back the database session if the preference does not exist
+                return jsonify({'error': f'Preference "{preference_name}" does not exist.'}), 400 #Returns an error to the client
+            user_preference = UserPreference(user_id=user.id, preference_id=preference_object.id) #Creates a new UserPreference object with the user and preference id. changed user=user to user_id=user.id and preference_id=preference_object.id
+            db.session.add(user_preference) #Adds the UserPreference object to the database session
+        # NEW CODE END
+
+        db.session.commit() #Commits all the changes to the database
+        return jsonify({'message': 'Registration successful', 'username': user.username, "preferences": preferences_list}), 201
    except Exception as e:
-       db.session.rollback()
-       return jsonify({'error': 'Registration failed', 'details': str(e)}), 500
+        db.session.rollback() #Rolls back the database session if an error occurs
+        return jsonify({'error': 'Registration failed', 'details': str(e)}), 500
+
+
+
+
+@api.route('/add_ingredient', methods=['POST'])
+@jwt_required()
+def add_ingredient():
+    current_user_id = get_jwt_identity()
+
+    if not all(k in request.form for k in ['ingredient_name', 'purchase_date', 'quantity']):
+        return jsonify({'error': 'Missing required fields'}), 400
+
+    if request.form['quantity'] not in ['alittle', 'some', 'alot']:
+        return jsonify({'error': 'Invalid quantity value'}), 400
+
+    expiry_date = "foo"
+
+    try:
+        ingredient = UserFridge(
+            user_id=current_user_id,
+            ingredient_name=request.form['ingredient_name'],
+            purchase_date=request.form['purchase_date'],
+            quantity=request.form['quantity'],
+            expiry_date=expiry_date
+        )
+        db.session.add(ingredient)
+        db.session.commit()
+        return jsonify({
+            'message': 'Ingredient added successfully',
+            'ingredient': {
+                'name': ingredient.ingredient_name,
+                'purchase_date': ingredient.purchase_date,
+                'quantity': ingredient.quantity
+            }
+        }), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': 'Failed to add ingredient', 'details': str(e)}), 500
+
+
 
 
 
@@ -80,3 +161,5 @@ def protected():
    current_user_id = get_jwt_identity()
    user = Auth.query.get(current_user_id)
    return jsonify({'message': f'Hello {user.username}!'}), 200
+
+
