@@ -232,7 +232,44 @@ def delete_ingredient():
         db.session.rollback()
         return jsonify({'error': 'Failed to delete ingredient', 'details': str(e)}), 500 
 
+@api.route('/generate_recipe', methods=['POST'])
+def generate_recipe():
+    if 'user_id' not in request.form or 'ingredient_names' not in request.form:
+        return jsonify({'error': 'Missing required fields'}), 400
 
+    current_user_id = request.form["user_id"]
+    ingredients = request.form["ingredient_names"]
+
+    ingredient_names = [name.strip() for name in ingredients.split(',')]
+
+    final_ingredients = []
+    for ingredient in ingredient_names:
+        ingredient_obj = UserFridge.query.filter_by(
+            user_id=current_user_id,
+            ingredient_name=ingredient
+        ).first()
+        if ingredient_obj:
+            temp_tup = (
+                ingredient_obj.ingredient_name,
+                ingredient_obj.purchase_date,
+                ingredient_obj.quantity
+            )
+            final_ingredients.append(temp_tup)
+
+    user_preferences = UserPreference.query.filter_by(user_id=current_user_id).all()
+    preference_names = [pref.preference.preference for pref in user_preferences]
+
+    input_for_recipe_func = {"preferences": preference_names, "ingredients":final_ingredients}
+
+    returned_json = recipeCreate(input_for_recipe_func)
+
+    if 'error' in returned_json:
+        return jsonify({'error': 'Recipe generation failed'}), 500
+    else:
+        return jsonify({
+            'preferences': preference_names,
+            'ingredients': final_ingredients
+        }), 200
 
 
 @api.route('/protected', methods=['GET'])
