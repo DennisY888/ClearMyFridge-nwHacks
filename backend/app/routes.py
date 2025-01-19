@@ -205,6 +205,10 @@ def delete_ingredient():
         purchase_date = purchase_date.replace(hour=0, minute=0, second=0)
     except ValueError:
         return jsonify({'error': 'Invalid date format for purchase_date. Use YYYY-MM-DD HH:MM:SS'}), 402
+    
+    print(request.form["user_id"])
+    print(request.form['ingredient_name'])
+    print(request.form['quantity'])
 
     ingredient = UserFridge.query.filter_by(
         user_id=current_user_id,
