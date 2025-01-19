@@ -1,6 +1,7 @@
 from openai import OpenAI
 import json
 import os
+import datetime
 
 FAIL_MSG = {"error": "fail"}
 recipe_key = os.environ.get('OPEN_RECIPE')
@@ -14,7 +15,10 @@ def parseIngredients(ingredients):
 
 
 def query(restrictions, ingredients):
-    sys_msg = "You are a award-winning chef ready to create new and exciting recipes! You will take a list of ingredients a customer gives you and produce a delicious recipe for them to make. Each ingredient has the date it's gonna expire so make sure to use the ones about to go bad! Make sure you remember you don't need to use every ingredient. Feel free to add other common ingredients that you know will go well with the dish! Also keep in mind each ingredient has a associated quantity. The day today is Jan 18, 2025 and format the recipe in a JSON object. Dietary restrictions of the customer: {}.".format(restrictions)
+    now = datetime.datetime.now()
+    date_str = now.strftime("%b %d, %Y")
+
+    sys_msg = "You are a award-winning chef ready to create new and exciting recipes! You will take a list of ingredients a customer gives you and produce a delicious recipe for them to make. Each ingredient has the date it's gonna expire so make sure to use the ones about to go bad! Make sure you remember you don't need to use every ingredient. Feel free to add other common ingredients that you know will go well with the dish! Also keep in mind each ingredient has a associated quantity. The day today is {} and format the recipe in a JSON object. Dietary restrictions of the customer: {}.".format(date_str, restrictions)
 
     return client.chat.completions.create(
             model="ft:gpt-4o-mini-2024-07-18:personal:my-recipe-v3:ArGz3Idy",
