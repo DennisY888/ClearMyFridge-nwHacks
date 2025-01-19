@@ -117,6 +117,7 @@ def register():
 
         return jsonify({
             "message": "Registration successful",
+            "user_id": user.id,
             "username": user.username,
             "preferences": str(preferences_list)[1:-1],  # Remove brackets from preference list
             "access_token": access_token,
@@ -133,7 +134,8 @@ def register():
 @api.route('/add_ingredient', methods=['POST'])
 # @jwt_required()
 def add_ingredient():
-    current_user_id = get_jwt_identity()
+    # current_user_id = get_jwt_identity()
+    current_user_id = request.form.get["user_id"]
 
     if not all(k in request.form for k in ['ingredient_name', 'purchase_date', 'quantity']):
         return jsonify({'error': 'Missing required fields'}), 400
