@@ -266,12 +266,12 @@ def generate_recipe():
 
     ingredient_list = []
     for ingredient in returned_json['ingredients']:
-        ingredient_str = ingredient['name'] + ":" + ingredient['quantity']
+        ingredient_str = ingredient['name'] + ", " + ingredient['quantity']
         ingredient_list.append(ingredient_str)
 
     step_list = []
     for step in returned_json['steps']:
-        step_str = step['duration'] + ":" + step['description']
+        step_str = step['duration'] + ": " + step['description']
         step_list.append(step_str)
     
     ingredient_str = ";".join(ingredient_list)
