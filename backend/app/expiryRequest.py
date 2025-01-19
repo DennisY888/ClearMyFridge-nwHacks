@@ -3,8 +3,8 @@ import datetime
 import os
 
 expiry_key = os.environ.get('OPEN_EXPIRY')
-
-client = OpenAI(api_key = expiry_key)
+if expiry_key:
+    client = OpenAI(api_key=expiry_key)
 
 def query(input_msg):
     sys_msg = "You are a model that predicts the expiry date of food items. Always provide a clear and accurate predicted expiry date in number of days. Dont provide anything else, just the integer for number of days. Ensure your predictions align with typical food storage and spoilage guidelines. return fail if the name of the input is not a food item."

@@ -5,7 +5,8 @@ import datetime
 
 FAIL_MSG = {"error": "fail"}
 recipe_key = os.environ.get('OPEN_RECIPE')
-client = OpenAI(api_key = recipe_key)
+if recipe_key:
+    client = OpenAI(api_key=recipe_key)
 
 def parseIngredients(ingredients):
     result = []
