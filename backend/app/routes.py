@@ -51,25 +51,27 @@ def login():
        user_preferences = user.preferences
 
        # Create a list to store the preference names as strings
-       preference_list = [pref.preference.preference for pref in user_preferences]
+       preference_list = ",".join([pref.preference.preference for pref in user_preferences])
 
        # Fetch user ingredients using the relationship defined in your models
-       user_ingredients = [
-           {
-               "ingredient_name": ingredient.ingredient_name,
-               "purchase_date": ingredient.purchase_date.strftime("%Y-%m-%d %H:%M:%S"),  # Format datetime for JSON
-               "quantity": ingredient.quantity,
-               "expiry_date": ingredient.expiry_date.strftime("%Y-%m-%d %H:%M:%S"),
-           }
-           for ingredient in user.fridge_items
-       ]
+       ingredient_strings = []
+       for ingredient in user.fridge_items:
+        kv_pairs = [
+            f"ingredient_name={ingredient.ingredient_name}",
+            f"purchase_date={ingredient.purchase_date.strftime('%Y-%m-%d %H:%M:%S')}",
+            f"quantity={ingredient.quantity}", 
+            f"expiry_date={ingredient.expiry_date.strftime('%Y-%m-%d %H:%M:%S')}"
+        ]
+        ingredient_strings.append(";".join(kv_pairs))
+
+        ingredients_string = ";".join(ingredient_strings)
        # NEW CODE END
 
        return jsonify({
            'access_token': access_token,  # Include access token
            'refresh_token': refresh_token,  # Include refresh token
            'preferences': preference_list,
-           'ingredients': user_ingredients  # NEW CODE: Added ingredients to the response
+           'ingredients': ingredients_string  # NEW CODE: Added ingredients to the response
        }), 200
 
    return jsonify({'error': 'Invalid credentials'}), 401
