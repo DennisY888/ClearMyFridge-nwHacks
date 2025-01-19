@@ -2,9 +2,7 @@ import string
 from flask import Blueprint, jsonify, request
 from datetime import datetime
 from app.models import Auth, Preference, UserPreference, UserFridge
-from app import db
 from app.extensions import db, jwt, token_blocklist
-from .models import Auth, Preference, UserPreference
 from flask_jwt_extended import (
    create_access_token,
    create_refresh_token, 
