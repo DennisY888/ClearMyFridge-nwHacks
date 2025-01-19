@@ -81,8 +81,6 @@ def login():
 
 
 
-
-
 @api.route('/register', methods=['POST'])
 def register():
     if not request.form.get('username') or not request.form.get('password'):
@@ -135,7 +133,6 @@ def register():
 
 
 
-
 @api.route('/add_ingredient', methods=['POST'])
 # @jwt_required()
 def add_ingredient():
@@ -158,7 +155,6 @@ def add_ingredient():
         purchase_date = purchase_date.replace(hour=0, minute=0, second=0)
     except ValueError:
         return jsonify({'error': 'Invalid date format for purchase_date. Use YYYY-MM-DD HH:MM:SS'}), 402
-    
 
     expiry_date = expiryCreate({"name": request.form['ingredient_name'], "purchase_date": request.form['purchase_date']})
     
@@ -167,7 +163,6 @@ def add_ingredient():
         expiry_date = expiry_date.replace(hour=0, minute=0, second=0)
     except:
         return jsonify({'error': 'Invalid ingredient'}), 403
-    
 
     try:
         ingredient = UserFridge(
@@ -189,7 +184,6 @@ def add_ingredient():
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': 'Failed to add ingredient', 'details': str(e)}), 500
-
 
 
 
@@ -232,6 +226,8 @@ def delete_ingredient():
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': 'Failed to delete ingredient', 'details': str(e)}), 500 
+
+
 
 @api.route('/generate_recipe', methods=['POST'])
 def generate_recipe():
@@ -289,11 +285,5 @@ def generate_recipe():
     }), 200
 
 
-@api.route('/protected', methods=['GET'])
-# @jwt_required()
-def protected():
-   current_user_id = get_jwt_identity()
-   user = Auth.query.get(current_user_id)
-   return jsonify({'message': f'Hello {user.username}!'}), 200
 
 
