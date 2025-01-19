@@ -157,6 +157,7 @@ def add_ingredient():
     
 
     expiry_date = expiryCreate({"name": request.form['ingredient_name'], "purchase_date": request.form['purchase_date']})
+    
     try:
         expiry_date = datetime.strptime(expiry_date, '%Y-%m-%d')
         expiry_date = expiry_date.replace(hour=0, minute=0, second=0)
@@ -179,7 +180,7 @@ def add_ingredient():
             'name': ingredient.ingredient_name,
             'purchase_date': ingredient.purchase_date,
             'quantity': ingredient.quantity,
-            "expiry_date": ingredient.expiry_date
+            "expiry_date": str(expiry_date)
         }), 201
     except Exception as e:
         db.session.rollback()
