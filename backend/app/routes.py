@@ -11,6 +11,7 @@ from flask_jwt_extended import (
    get_jwt_identity
 )
 from app.expiryRequest import expiryCreate
+from app.recipeRequest import recipeCreate
 
 
 
@@ -263,12 +264,26 @@ def generate_recipe():
 
     returned_json = recipeCreate(input_for_recipe_func)
 
+    ingredient_list = []
+    for ingredient in returned_json['ingredients']:
+        ingredient_str = ingredient['name'] + ":" + ingredient['quantity']
+        ingredient_list.append(ingredient_str)
+
+    step_list = []
+    for step in returned_json['steps']:
+        step_str = step['duration'] + ":" + step['description']
+        step_list.append(step_str)
+    
+    ingredient_str = ";".join(ingredient_list)
+    step_str = ";".join(step_list)
+
     if 'error' in returned_json:
         return jsonify({'error': 'Recipe generation failed'}), 500
     else:
         return jsonify({
-            'preferences': preference_names,
-            'ingredients': final_ingredients
+            'name': returned_json['name'],
+            'ingredients': ingredient_str,
+            'steps': step_str
         }), 200
 
 
