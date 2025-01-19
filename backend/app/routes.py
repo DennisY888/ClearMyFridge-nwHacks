@@ -264,6 +264,11 @@ def generate_recipe():
 
     returned_json = recipeCreate(input_for_recipe_func)
 
+    print(returned_json)
+
+    if 'error' in returned_json:
+        return jsonify({'error': 'Recipe generation failed'}), 500
+
     ingredient_list = []
     for ingredient in returned_json['ingredients']:
         ingredient_str = ingredient['name'] + ", " + ingredient['quantity']
@@ -277,14 +282,11 @@ def generate_recipe():
     ingredient_str = ";".join(ingredient_list)
     step_str = ";".join(step_list)
 
-    if 'error' in returned_json:
-        return jsonify({'error': 'Recipe generation failed'}), 500
-    else:
-        return jsonify({
-            'name': returned_json['name'],
-            'ingredients': ingredient_str,
-            'steps': step_str
-        }), 200
+    return jsonify({
+        'name': returned_json['name'],
+        'ingredients': ingredient_str,
+        'steps': step_str
+    }), 200
 
 
 @api.route('/protected', methods=['GET'])
