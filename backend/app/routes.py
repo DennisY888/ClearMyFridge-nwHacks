@@ -39,45 +39,43 @@ def logout():
 
 @api.route('/login', methods=['POST'])
 def login():
-   if not request.form.get('username') or not request.form.get('password'):
-       return jsonify({'error': 'Missing credentials'}), 400
+    if not request.form.get('username') or not request.form.get('password'):
+        return jsonify({'error': 'Missing credentials'}), 400
 
-   user = Auth.query.filter_by(username=request.form['username']).first()
+    user = Auth.query.filter_by(username=request.form['username']).first()
 
-   if user and user.check_password(request.form['password']):
-       access_token = create_access_token(identity=user.id)
-       refresh_token = create_refresh_token(identity=user.id)
+    if user and user.check_password(request.form['password']):
+        access_token = create_access_token(identity=user.id)
+        refresh_token = create_refresh_token(identity=user.id)
 
-       # NEW CODE START
-       # Fetch user preferences using the relationship defined in your models
-       user_preferences = user.preferences
+        user_preferences = user.preferences
+        preference_list = ",".join([pref.preference.preference for pref in user_preferences])
 
-       # Create a list to store the preference names as strings
-       preference_list = ",".join([pref.preference.preference for pref in user_preferences])
+        # Initialize empty string for ingredients
+        ingredients_string = ""
+        
+        # Only process ingredients if user has any
+        if user.fridge_items:
+            ingredient_strings = []
+            for ingredient in user.fridge_items:
+                kv_pairs = [
+                    f"ingredient_name={ingredient.ingredient_name}",
+                    f"purchase_date={ingredient.purchase_date.strftime('%Y-%m-%d %H:%M:%S')}",
+                    f"quantity={ingredient.quantity}", 
+                    f"expiry_date={ingredient.expiry_date.strftime('%Y-%m-%d %H:%M:%S')}"
+                ]
+                ingredient_strings.append(";".join(kv_pairs))
+            ingredients_string = ";".join(ingredient_strings)
 
-       # Fetch user ingredients using the relationship defined in your models
-       ingredient_strings = []
-       for ingredient in user.fridge_items:
-        kv_pairs = [
-            f"ingredient_name={ingredient.ingredient_name}",
-            f"purchase_date={ingredient.purchase_date.strftime('%Y-%m-%d %H:%M:%S')}",
-            f"quantity={ingredient.quantity}", 
-            f"expiry_date={ingredient.expiry_date.strftime('%Y-%m-%d %H:%M:%S')}"
-        ]
-        ingredient_strings.append(";".join(kv_pairs))
+        return jsonify({
+            'access_token': access_token,
+            'refresh_token': refresh_token,
+            'preferences': preference_list,
+            'ingredients': ingredients_string,
+            "user_id": user.id
+        }), 200
 
-        ingredients_string = ";".join(ingredient_strings)
-       # NEW CODE END
-
-       return jsonify({
-           'access_token': access_token,  # Include access token
-           'refresh_token': refresh_token,  # Include refresh token
-           'preferences': preference_list,
-           'ingredients': ingredients_string,  # NEW CODE: Added ingredients to the response
-           "user_id": user.id
-       }), 200
-
-   return jsonify({'error': 'Invalid credentials'}), 401
+    return jsonify({'error': 'Invalid credentials'}), 401
 
 
 
