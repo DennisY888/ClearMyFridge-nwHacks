@@ -156,7 +156,7 @@ def add_ingredient():
         return jsonify({'error': 'Invalid date format for purchase_date. Use YYYY-MM-DD HH:MM:SS'}), 402
     
 
-    expiry_date = expiryCreate(request.form['purchase_date'])
+    expiry_date = expiryCreate({"name": request.form['ingredient_name'], "purchase_date": request.form['purchase_date']})
     print("RESULT: " + expiry_date)
     try:
         expiry_date = datetime.strptime(expiry_date, '%Y-%m-%d')
