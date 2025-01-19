@@ -71,7 +71,8 @@ def login():
            'access_token': access_token,  # Include access token
            'refresh_token': refresh_token,  # Include refresh token
            'preferences': preference_list,
-           'ingredients': ingredients_string  # NEW CODE: Added ingredients to the response
+           'ingredients': ingredients_string,  # NEW CODE: Added ingredients to the response
+           "user_id": user.id
        }), 200
 
    return jsonify({'error': 'Invalid credentials'}), 401
@@ -173,6 +174,46 @@ def add_ingredient():
         db.session.rollback()
         return jsonify({'error': 'Failed to add ingredient', 'details': str(e)}), 500
 
+
+
+
+@api.route('/delete_ingredient', methods=['DELETE'])
+
+def delete_ingredient():
+    # current_user_id = get_jwt_identity()
+    current_user_id = request.form["user_id"]
+
+    if not all(k in request.form for k in ['ingredient_name', 'purchase_date', 'quantity']):
+        return jsonify({'error': 'Missing required fields'}), 400
+
+    if request.form['quantity'] not in ['alittle', 'some', 'alot']:
+        return jsonify({'error': 'Invalid quantity value'}), 400
+
+    try:
+        purchase_date = datetime.strptime(request.form['purchase_date'], '%Y-%m-%d')
+        purchase_date = purchase_date.replace(hour=0, minute=0, second=0)
+    except ValueError:
+        return jsonify({'error': 'Invalid date format for purchase_date. Use YYYY-MM-DD HH:MM:SS'}), 400
+
+    ingredient = UserFridge.query.filter_by(
+        user_id=current_user_id,
+        ingredient_name=request.form['ingredient_name'],
+        purchase_date=purchase_date,
+        quantity=request.form['quantity']
+    ).first()
+
+    if not ingredient:
+        return jsonify({'error': 'Ingredient not found for this user'}), 400
+
+    try:
+        db.session.delete(ingredient)
+        db.session.commit()
+        return jsonify({
+            'message': 'Ingredient deleted successfully'
+        }), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': 'Failed to delete ingredient', 'details': str(e)}), 500 
 
 
 
