@@ -148,6 +148,9 @@ def add_ingredient():
         return jsonify({'error': 'Invalid quantity value'}), 401
 
     # expiry_date = datetime(2025, 12, 31, 23, 59, 59)
+    print(request.form["user_id"])
+    print(request.form['ingredient_name'])
+    print(request.form['quantity'])
 
     try:
         purchase_date = datetime.strptime(request.form['purchase_date'], '%Y-%m-%d')
